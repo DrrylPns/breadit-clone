@@ -43,6 +43,8 @@ model User {
   name          String?
   email         String?   @unique
   emailVerified DateTime?
+  createdSubreddits Subreddit[] @relation("CreatedBy")
+
   username      String?   @unique
 
   image       String?
@@ -52,6 +54,7 @@ model User {
   Comment     Comment[]
   CommentVote CommentVote[]
   Vote        Vote[]
+  Subscription Subscription[]
 }
 
 model Subreddit {
@@ -60,6 +63,21 @@ model Subreddit {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   posts     Post[]
+
+  creatorId String? 
+  Creator User? @relation("CreatedBy", fields: [creatorId], references: [id])
+  subscribers Subscription[]
+
+  @@index([name])
+}
+
+model Subscription {
+  user User @relation(fields: [userId], references: [id])
+  userId String
+  subreddit Subreddit @relation(fields: [subredditId], references: [id])
+  subredditId String
+
+  @@id([userId, subredditId])
 }
 
 model Post {
@@ -75,7 +93,7 @@ model Post {
   authorId String
 
   comments Comment[]
-  Vote     Vote[]
+  votes     Vote[]
 }
 
 model Comment {
